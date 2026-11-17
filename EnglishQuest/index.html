@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: #7c3aed;
+    --primary-hover: #6d28d9;
+    --bg-color: #f5f3ff;
+    --card-bg: #ffffff;
+    --text-color: #1e1b4b;
+    --success: #10b981;
+    --error: #ef4444;
+    --border-color: #ede9fe;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Nunito', Arial, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+header {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    position: relative;
+}
+
+.sound-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.sound-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+
+header h1 { font-size: 36px; margin: 0; font-weight: 800; }
+header p { margin: 5px 0 0; font-size: 16px; opacity: 0.9; }
+
+.container { max-width: 760px; margin: 25px auto; padding: 15px; }
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.stat {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 15px 10px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 2px solid var(--border-color);
+}
+
+.stat strong {
+    display: block;
+    font-size: 22px;
+    margin-top: 5px;
+    color: var(--primary);
+}
+
+.hearts {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+/* ESTILO MINECRAFT DE CORAZONES */
+.heart {
+    position: relative;
+    display: inline-block;
+    font-size: 22px;
+    line-height: 1;
+    color: #cbd5e1; /* Fondo gris (vacío) */
+}
+
+.heart .red-part {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    color: var(--error);
+    width: 100%;
+    transition: width 0.2s ease;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 25px;
+    margin-top: 22px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    border: 2px solid var(--border-color);
+}
+
+.card h2 { margin-top: 0; color: var(--primary); }
+
+.level {
+    background: #faf5ff;
+    border: 2px solid #e9d5ff;
+    padding: 16px;
+    border-radius: 14px;
+    margin: 12px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s;
+}
+
+.level:hover { transform: translateY(-2px); }
+.level.done { border-color: var(--success); background: #f0fdf4; }
+.level.locked { opacity: 0.55; background: #f8fafc; border-color: #e2e8f0; }
+.level small { display: block; margin-top: 4px; color: #64748b; font-weight: 600; }
+
+button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    transition: background 0.2s, transform 0.1s;
+}
+
+button:hover { background: var(--primary-hover); }
+button:active { transform: scale(0.98); }
+button:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
+
+.option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #ffffff;
+    color: var(--text-color);
+    border: 2px solid #e2e8f0;
+    margin: 12px 0;
+    border-radius: 14px;
+    padding: 15px 20px;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.option:hover:not(:disabled) { background: #f1f5f9; border-color: var(--primary); }
+.option.correct { background: #d1fae5 !important; border-color: var(--success) !important; color: #065f46 !important; }
+.option.wrong { background: #fee2e2 !important; border-color: var(--error) !important; color: #991b1b !important; }
+
+.progress {
+    background: #e2e8f0;
+    height: 14px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.progress-bar {
+    background: var(--success);
+    width: 0%;
+    height: 100%;
+    transition: width 0.4s ease;
+    border-radius: 20px;
+}
+
+#feedback { min-height: 25px; font-weight: 700; margin: 15px 0; font-size: 17px; }
+.success { color: var(--success); }
+.error { color: var(--error); }
+
+#game, #result { display: none; }
+
+.admin-panel {
+    margin-top: 25px;
+    text-align: center;
+    border-top: 2px dashed #e2e8f0;
+    padding-top: 15px;
+}
+
+.btn-reset {
+    background: #ef4444;
+    font-size: 14px;
+    padding: 8px 15px;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+}
+.btn-reset:hover { background: #dc2626; }
+
+footer { text-align: center; color: #64748b; padding: 25px; font-size: 14px; font-weight: 600; }
+
+@media (max-width: 500px) {
+    .stats { grid-template-columns: 1fr; }
+    .level { flex-direction: column; align-items: flex-start; }
+    .level button { width: 100%; }
+    header h1 { font-size: 28px; }
+    .sound-toggle { position: static; margin-top: 10px; display: inline-block; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <button id="soundToggle" class="sound-toggle">🔊 Sonido: ON</button>
+    <h1>🎮 English Quest</h1>
+    <p>¡Aprendé inglés jugando en clase!</p>
+</header>
+
+<main class="container">
+    <section class="stats">
+        <div class="stat">
+            ❤️ Vidas
+            <div id="lives" class="hearts"></div>
+            <small id="lifeCount">5 de 5</small>
+        </div>
+        <div class="stat">
+            🔥 Racha
+            <strong id="streak">0 aciertos</strong>
+        </div>
+        <div class="stat">
+            ⭐ Puntos
+            <strong id="points">0</strong>
+        </div>
+    </section>
+
+    <section id="home" class="card">
+        <h2>¡Bienvenido a English Quest!</h2>
+        <p>Superá los desafíos de tiempos verbales, mantené tu racha y gana la mayor cantidad de puntos.</p>
+        <h3>📚 Tus niveles</h3>
+        <div id="levels"></div>
+        <p id="totalProgress" style="font-weight: 700; color: var(--primary);"></p>
+        <div class="admin-panel">
+            <button id="resetProgressBtn" class="btn-reset">🔄 Reiniciar progreso de clase</button>
+        </div>
+    </section>
+
+    <section id="game" class="card">
+        <h2 id="levelTitle"></h2>
+        <p id="questionNumber" style="font-weight: 600; color: #64748b;"></p>
+        <div class="progress">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <h3 id="question" style="font-size: 20px; margin: 20px 0;"></h3>
+        <div id="options"></div>
+        <p id="feedback"></p>
+        <button id="nextButton" disabled>Continuar</button>
+    </section>
+
+    <section id="result" class="card" style="text-align: center;">
+        <h2 id="resultTitle"></h2>
+        <p id="resultText" style="font-size: 18px; margin: 20px 0;"></p>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button id="menuButton">Volver al menú</button>
+            <button id="retryButton" style="display:none; background: var(--error);">🔄 Recuperar vidas</button>
+            <button id="nextLevelButton" style="display:none; background: var(--success);">Siguiente nivel ➜</button>
+        </div>
+    </section>
+</main>
+
+<footer>
+    English Quest ©️ 2026 - Versión Escolar Interactiva
+</footer>
+
+<script>
+let soundEnabled = true;
+let audioCtx = null;
+
+function playSound(type) {
+    if (!soundEnabled) return;
+    try {
+        if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'streak') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now);
+            osc.frequency.setValueAtTime(880, now + 0.1);
+            gainNode.gain.setValueAtTime(0.25, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            osc.start(now); osc.stop(now + 0.4);
+        } else if (type === 'wrong') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.25);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            osc.start(now); osc.stop(now + 0.25);
+        } else if (type === 'win') {
+            osc.type = 'sine';
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, index) => {
+                const noteOsc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                noteOsc.connect(noteGain);
+                noteGain.connect(audioCtx.destination);
+                noteOsc.frequency.setValueAtTime(freq, now + (index * 0.1));
+                noteGain.gain.setValueAtTime(0.2, now + (index * 0.1));
+                noteGain.gain.exponentialRampToValueAtTime(0.01, now + (index * 0.1) + 0.2);
+                noteOsc.start(now + (index * 0.1));
+                noteOsc.stop(now + (index * 0.1) + 0.2);
+            });
+        }
+    } catch (e) {
+        console.log("Audio no soportado:", e);
+    }
+}
+
+document.getElementById('soundToggle').addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundToggle').textContent = soundEnabled ? "🔊 Sonido: ON" : "🔇 Sonido: OFF";
+});
+
+const levels = [
+    {
+        name: "Nivel 1 - Present Simple",
+        description: "Rutinas y hábitos diarios.",
+        questions: [
+            { q: "She _____ to school every day.", options: ["go", "goes", "going"], answer: "goes" },
+            { q: "I _____ football on weekends.", options: ["play", "plays", "playing"], answer: "play" },
+            { q: "He _____ like pizza.", options: ["don't", "doesn't", "isn't"], answer: "doesn't" },
+            { q: "They _____ English at school.", options: ["studies", "study", "studying"], answer: "study" },
+            { q: "_____ you like music?", options: ["Does", "Are", "Do"], answer: "Do" }
+        ]
+    },
+    {
+        name: "Nivel 2 - Present Continuous",
+        description: "Acciones que suceden ahora mismo.",
+        questions: [
+            { q: "She _____ watching TV now.", options: ["is", "are", "am"], answer: "is" },
+            { q: "They are _____ football.", options: ["play", "playing", "plays"], answer: "playing" },
+            { q: "I _____ studying English right now.", options: ["is", "are", "am"], answer: "am" },
+            { q: "He isn't _____ now.", options: ["sleep", "sleeps", "sleeping"], answer: "sleeping" },
+            { q: "_____ they working?", options: ["Is", "Are", "Am"], answer: "Are" }
+        ]
+    },
+    {
+        name: "Nivel 3 - Past Simple",
+        description: "Acciones terminadas en el pasado.",
+        questions: [
+            { q: "Yesterday, I _____ football.", options: ["play", "played", "playing"], answer: "played" },
+            { q: "She _____ a movie last night.", options: ["watch", "watched", "watches"], answer: "watched" },
+            { q: "They _____ to school yesterday.", options: ["didn't go", "don't go", "doesn't go"], answer: "didn't go" },
+            { q: "He _____ a new book last week.", options: ["buy", "buys", "bought"], answer: "bought" },
+            { q: "_____ you visit your grandmother?", options: ["Do", "Did", "Does"], answer: "Did" }
+        ]
+    },
+    {
+        name: "Nivel 4 - Past Continuous",
+        description: "Acciones que estaban sucediendo en el pasado.",
+        questions: [
+            { q: "I _____ sleeping at 10 PM.", options: ["was", "were", "am"], answer: "was" },
+            { q: "They were _____ TV.", options: ["watch", "watched", "watching"], answer: "watching" },
+            { q: "She _____ cooking yesterday.", options: ["were", "was", "is"], answer: "was" },
+            { q: "We were _____ English.", options: ["study", "studied", "studying"], answer: "studying" },
+            { q: "_____ you playing when I called?", options: ["Was", "Were", "Are"], answer: "Were" }
+        ]
+    },
+    {
+        name: "Nivel 5 - Mixed Challenge",
+        description: "¡El desafío final mezclando todos los tiempos!",
+        questions: [
+            { q: "She _____ English every day.", options: ["study", "studies", "studying"], answer: "studies" },
+            { q: "Look! They _____ dancing.", options: ["are", "was", "is"], answer: "are" },
+            { q: "Yesterday, he _____ a pizza.", options: ["eat", "eats", "ate"], answer: "ate" },
+            { q: "I _____ watching TV when you called.", options: ["am", "was", "were"], answer: "was" },
+            { q: "While I _____ studying, my phone rang.", options: ["was", "were", "am"], answer: "was" }
+        ]
+    }
+];
+
+let lives = 10; // 10 mitades en total (5 corazones)
+let points = 0;
+let streak = 0;
+let currentLevel = 0;
+let currentQuestion = 0;
+let answered = false;
+let completed = loadCompleted();
+
+function loadCompleted() {
+    try {
+        const saved = JSON.parse(localStorage.getItem("completedLevels") || "[]");
+        return Array.isArray(saved) ? saved : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveCompleted() {
+    localStorage.setItem("completedLevels", JSON.stringify(completed));
+}
+
+function updateLives() {
+    const container = document.getElementById("lives");
+    container.innerHTML = "";
+    
+    // Renderizado exacto estilo Minecraft: cada corazón se llena por mitades (0%, 50% o 100%)
+    for (let i = 0; i < 5; i++) {
+        const heart = document.createElement("span");
+        heart.className = "heart";
+        heart.textContent = "♥️"; // Fondo gris (vacío)
+
+        const redPart = document.createElement("span");
+        redPart.className = "red-part";
+        redPart.textContent = "♥️"; // Capa roja superpuesta
+
+        const heartLifeValue = lives - (i * 2);
+        if (heartLifeValue >= 2) {
+            redPart.style.width = "100%"; // Corazón entero rojo
+        } else if (heartLifeValue === 1) {
+            redPart.style.width = "50%";  // Medio corazón rojo (estilo Minecraft)
+        } else {
+            redPart.style.width = "0%";   // Corazón totalmente vacío (gris)
+        }
+
+        heart.appendChild(redPart);
+        container.appendChild(heart);
+    }
+    
+    const currentLivesNum = (lives / 2).toFixed(lives % 2 !== 0 ? 1 : 0);
+    document.getElementById("lifeCount").textContent = currentLivesNum + " de 5";
+}
+
+function updatePoints() {
+    document.getElementById("points").textContent = points;
+}
+
+function updateStreakDisplay() {
+    document.getElementById("streak").textContent = streak + " aciertos";
+}
+
+function showLevels() {
+    const container = document.getElementById("levels");
+    container.innerHTML = "";
+
+    levels.forEach((level, index) => {
+        const unlocked = index === 0 || completed.includes(index - 1);
+        const done = completed.includes(index);
+
+        const div = document.createElement("div");
+        div.className = "level";
+        if (!unlocked) div.classList.add("locked");
+        if (done) div.classList.add("done");
+
+        const info = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = level.name;
+        const desc = document.createElement("small");
+        desc.textContent = done ? "✅ Completado" : unlocked ? level.description : "🔒 Bloqueado";
+
+        info.appendChild(title);
+        info.appendChild(desc);
+
+        const btn = document.createElement("button");
+        btn.textContent = done ? "Repetir" : "Jugar";
+        btn.disabled = !unlocked;
+        btn.addEventListener("click", () => startLevel(index));
+
+        div.appendChild(info);
+        div.appendChild(btn);
+        container.appendChild(div);
+    });
+
+    document.getElementById("totalProgress").textContent = `🏆 Progreso total: ${completed.length} de 5 niveles completados`;
+}
+
+function showScreen(screenId) {
+    document.getElementById("home").style.display = "none";
+    document.getElementById("game").style.display = "none";
+    document.getElementById("result").style.display = "none";
+    document.getElementById(screenId).style.display = "block";
+}
+
+function startLevel(index) {
+    if (lives <= 0) {
+        showResult(false, "¡Te quedaste sin vidas!", "Recuperá tus vidas para volver a jugar.");
+        return;
+    }
+    currentLevel = index;
+    currentQuestion = 0;
+    showScreen("game");
+    showQuestion();
+}
+
+function showQuestion() {
+    answered = false;
+    const level = levels[currentLevel];
+    const qData = level.questions[currentQuestion];
+
+    document.getElementById("levelTitle").textContent = level.name;
+    document.getElementById("questionNumber").textContent = `Pregunta ${currentQuestion + 1} de 5`;
+    document.getElementById("progressBar").style.width = `${(currentQuestion / 5) * 100}%`;
+    document.getElementById("question").textContent = qData.q;
+    
+    const feedback = document.getElementById("feedback");
+    feedback.textContent = "";
+    feedback.className = "";
+
+    const nextBtn = document.getElementById("nextButton");
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Continuar";
+
+    const optionsContainer = document.getElementById("options");
+    optionsContainer.innerHTML = "";
+
+    qData.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.textContent = option;
+        btn.addEventListener("click", () => checkAnswer(btn, option));
+        optionsContainer.appendChild(btn);
+    });
+}
+
+function checkAnswer(button, selected) {
+    if (answered || lives <= 0) return;
+    answered = true;
+
+    const qData = levels[currentLevel].questions[currentQuestion];
+    const buttons = document.querySelectorAll(".option");
+
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === qData.answer) {
+            btn.classList.add("correct");
+        }
+    });
+
+    const feedback = document.getElementById("feedback");
+
+    if (selected === qData.answer) {
+        streak++;
+        const bonus = Math.floor(streak / 2) * 5;
+        const earned = 10 + bonus;
+        points += earned;
+
+        if (streak >= 3) {
+            playSound('streak');
+            feedback.textContent = `¡Racha de ${streak}! 🔥 +${earned} puntos`;
+        } else {
+            playSound('correct');
+            feedback.textContent = `¡Correcto! 🎉 +${earned} puntos`;
+        }
+        feedback.className = "success";
+    } else {
+        streak = 0;
+        updateStreakDisplay();
+        lives = Math.max(0, lives - 1); // Quita exactamente media vida por error
+        button.classList.add("wrong");
+        playSound('wrong');
+        feedback.textContent = `¡Ups! La respuesta correcta era: ${qData.answer}`;
+        feedback.className = "error";
+    }
+
+    updateLives();
+    updatePoints();
+    updateStreakDisplay();
+
+    const nextBtn = document.getElementById("nextButton");
+    nextBtn.disabled = false;
+
+    if (lives <= 0) {
+        nextBtn.textContent = "Ver resultado";
+    } else if (currentQuestion === 4) {
+        nextBtn.textContent = "Finalizar nivel";
+    }
+}
+
+function nextQuestion() {
+    if (!answered) return;
+    if (lives <= 0) {
+        showResult(false, "💔 ¡Te quedaste sin vidas!", "Recuperá tus vidas para volver a intentarlo.");
+        return;
+    }
+
+    currentQuestion++;
+    if (currentQuestion < 5) {
+        showQuestion();
+    } else {
+        finishLevel();
+    }
+}
+
+function finishLevel() {
+    if (!completed.includes(currentLevel)) {
+        completed.push(currentLevel);
+        saveCompleted();
+    }
+
+    playSound('win');
+    if (completed.length === 5) {
+        showResult(true, "🏆 ¡FELICITACIONES!", "¡Completaste los cinco niveles de English Quest! Sos un experto en los tiempos verbales.");
+    } else {
+        showResult(true, "🎉 ¡Nivel completado!", `Muy bien completaste ${levels[currentLevel].name}. Ya podés avanzar al siguiente.`);
+    }
+}
+
+function showResult(success, title, message) {
+    showScreen("result");
+    document.getElementById("resultTitle").textContent = title;
+    document.getElementById("resultText").textContent = message;
+
+    const retryBtn = document.getElementById("retryButton");
+    const nextLevelBtn = document.getElementById("nextLevelButton");
+
+    retryBtn.style.display = "none";
+    nextLevelBtn.style.display = "none";
+
+    if (!success) {
+        retryBtn.style.display = "inline-block";
+    } else if (completed.length < 5) {
+        nextLevelBtn.style.display = "inline-block";
+    }
+}
+
+function goHome() {
+    showScreen("home");
+    showLevels();
+    updateLives();
+    updatePoints();
+    updateStreakDisplay();
+}
+
+function restartGame() {
+    lives = 10; // Restaura las 10 mitades (5 corazones llenos)
+    points = 0;
+    streak = 0;
+    currentQuestion = 0;
+    updateLives();
+    updatePoints();
+    updateStreakDisplay();
+    goHome();
+}
+
+document.getElementById("nextButton").addEventListener("click", nextQuestion);
+document.getElementById("menuButton").addEventListener("click", goHome);
+document.getElementById("retryButton").addEventListener("click", restartGame);
+document.getElementById("resetProgressBtn").addEventListener("click", () => {
+    if (confirm("¿Estás seguro de reiniciar todo el progreso y la puntuación?")) {
+        localStorage.clear();
+        completed = [];
+        restartGame();
+    }
+});
+
+document.getElementById("nextLevelButton").addEventListener("click", () => {
+    goHome();
+    const next = currentLevel + 1;
+    if (next < levels.length) {
+        startLevel(next);
+    }
+});
+
+updateLives();
+updatePoints();
+updateStreakDisplay();
+showLevels();
+</script>
+
+</body>
+</html>
